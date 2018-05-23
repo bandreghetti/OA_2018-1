@@ -10,8 +10,18 @@ typedef struct reg {
     char course[3];
     char class[2];
     char primkey[31];
-    short rrn;
+    unsigned short rrn;
 } Reg;
+
+typedef struct secidx {
+    char course[3];
+    short head;
+} Secidx;
+
+typedef struct secinvlist {
+    char primkey[31];
+    short next;
+} SecInvList;
 
 Reg parsereg(char* regbytes)
 {
@@ -110,7 +120,7 @@ int main(int argc, char* argv[])
     {
         printf("Primary Key: %s | RRN: %d\n", reglist[i].primkey, reglist[i].rrn);
         fprintf(outputprimfp, "%s", reglist[i].primkey);
-        fwrite(&reglist[i].rrn, sizeof(short), 1, outputprimfp);
+        fwrite(&reglist[i].rrn, sizeof(unsigned short), 1, outputprimfp);
         ++i;
     }
 
