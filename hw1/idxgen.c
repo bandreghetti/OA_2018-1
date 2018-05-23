@@ -3,19 +3,19 @@
 #include <string.h>
 #include <ctype.h>
 
-struct reg {
+typedef struct reg {
     char matric[7];
     char name[42];
     char op[3];
     char course[3];
     char class[2];
     char primkey[31];
-    u_int16_t rrn;
-};
+    short rrn;
+} Reg;
 
-struct reg parsereg(char* regbytes)
+Reg parsereg(char* regbytes)
 {
-    struct reg tmpreg;
+    Reg tmpreg;
     strncpy(tmpreg.matric, &regbytes[0], 6);
     tmpreg.matric[6] = '\0';
     strncpy(tmpreg.name, &regbytes[7], 41);
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     char output_sec_file[39];
     FILE *inputfp, *outputprimfp, *outputsecfp;
     char inputbuffer[64];
-    struct reg *reglist;
+    Reg *reglist;
 
     strcpy(output_prim_file, "indice");
     strcpy(output_sec_file, "indicesec");
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
     outputprimfp = fopen(output_prim_file, "w");
     outputsecfp = fopen(output_sec_file, "w");
 
-    reglist = (struct reg*)malloc(nregs*sizeof(struct reg));
+    reglist = (Reg*)malloc(nregs*sizeof(Reg));
 
     int i = 0;
     while(i < nregs)
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     {
         printf("Primary Key: %s | RRN: %d\n", reglist[i].primkey, reglist[i].rrn);
         fprintf(outputprimfp, "%s", reglist[i].primkey);
-        fwrite(&reglist[i].rrn, sizeof(u_int16_t), 1, outputprimfp);
+        fwrite(&reglist[i].rrn, sizeof(short), 1, outputprimfp);
         ++i;
     }
 
