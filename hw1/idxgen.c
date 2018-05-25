@@ -3,6 +3,51 @@
 #include <string.h>
 #include <ctype.h>
 
+typedef struct courselistelem {
+    char course[3];
+    struct courselistelem* next;
+} CourseListElem;
+
+typedef struct courselist {
+    CourseListElem* first;
+    CourseListElem* last;
+    unsigned int size;
+} CourseList;
+
+CourseList* CourseListCreate()
+{
+   CourseList* l = (CourseList*)malloc(sizeof(CourseList));
+   l->first = NULL;
+   l->last = NULL;
+   return l;
+}
+
+void appendToCourseList(char* course, CourseList* l)
+{
+    CourseListElem* newelem = (CourseListElem*)malloc(sizeof(CourseListElem));
+    strcpy(newelem->course, course);
+    newelem->next = l->first;
+    l->first = newelem;
+    if(l->last == NULL){
+        l->last = newelem;
+    }
+    ++(l->size);
+}
+
+int isInList(char* course, CourseList* l)
+{
+    CourseListElem* elem = l->first;
+    while(elem != NULL)
+    {
+        if(strcmp(elem->course, course) == 0)
+        {
+            return 1;
+        }
+        elem = elem->next;
+    }
+    return 0;
+}
+
 typedef struct reg {
     char matric[7];
     char name[42];
@@ -76,6 +121,11 @@ void gen_output_fname(char* outputfname, char* inputfname)
     strcat(outputfname, ".ind");
 }
 
+void add_secidx_elem(Secidx* secidxvec, SecInvList* secinvlistvec, Reg reg)
+{
+    
+}
+
 int main(int argc, char* argv[])
 {
     char input_file[30];
@@ -108,13 +158,28 @@ int main(int argc, char* argv[])
     reglist = (Reg*)malloc(nregs*sizeof(Reg));
 
     int i = 0;
+    CourseList* courselist = CourseListCreate();
     while(i < nregs)
     {
         fread(inputbuffer, sizeof(char), 64, inputfp);
         reglist[i] = parsereg(inputbuffer);
         reglist[i].rrn = i;
+        if(!isInList(reglist[i].course, courselist))
+        {
+            appendToCourseList(reglist[i].course, courselist);
+        }
         ++i;
     }
+
+    Secidx* secidxvec = (Secidx*)malloc((courselist->size)*sizeof(Secidx));
+    SecInvList* secinvlistvec = (SecInvList*)malloc(nregs*sizeof(SecInvList));
+
+    i = 0;
+    while(i < nregs)
+    {
+        add_secidx_elem(secidxvec, secinvlistvec, reglist[i]);
+    }
+
     i = 0;
     while(i < nregs)
     {
@@ -123,6 +188,7 @@ int main(int argc, char* argv[])
         fwrite(&reglist[i].rrn, sizeof(unsigned short), 1, outputprimfp);
         ++i;
     }
+    
 
     fclose(inputfp);
     fclose(outputprimfp);
