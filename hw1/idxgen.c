@@ -114,12 +114,12 @@ unsigned long int fsize(char* fname)
     return size;
 }
 
-void gen_output_fname(char* outputfname, char* inputfname)
+void gen_output_fname(char* outputfname, char* inputfname, char ext[])
 {
     strcat(outputfname, inputfname);
     char* dotptr = strrchr(outputfname, '.');
     *dotptr = '\0';
-    strcat(outputfname, ".ind");
+    strcat(outputfname, ext);
 }
 
 CourseList* courselist;
@@ -194,8 +194,9 @@ char input_file[30];
 char output_prim_file[36];
 char output_sec_file[39];
 char output_sec_list[43];
+char output_data_file[30];
 
-FILE *inputfp, *outputprimfp, *outputsecfp, *outputseclistfp;
+FILE *inputfp, *datafp, *outputprimfp, *outputsecfp, *outputseclistfp;
 
 int main(int argc, char* argv[])
 {
@@ -206,6 +207,7 @@ int main(int argc, char* argv[])
     strcpy(output_prim_file, "indice");
     strcpy(output_sec_file, "indicesec");
     strcpy(output_sec_list, "indiceseclist");
+    strcpy(output_data_file, "\0");
 
     if(argc > 1)
     {
@@ -215,9 +217,10 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    gen_output_fname(output_prim_file, input_file);
-    gen_output_fname(output_sec_file, input_file);
-    gen_output_fname(output_sec_list, input_file);
+    gen_output_fname(output_prim_file, input_file, ".ind");
+    gen_output_fname(output_sec_file, input_file, ".ind");
+    gen_output_fname(output_sec_list, input_file, ".ind");
+    gen_output_fname(output_data_file, input_file, ".data");
 
     int nregs = fsize(input_file)/64;
 
@@ -225,6 +228,7 @@ int main(int argc, char* argv[])
     outputprimfp = fopen(output_prim_file, "w");
     outputsecfp = fopen(output_sec_file, "w");
     outputseclistfp = fopen(output_sec_list, "w");
+    datafp = fopen(output_data_file, "w");
 
     reglist = (Reg*)malloc(nregs*sizeof(Reg));
 
@@ -240,6 +244,7 @@ int main(int argc, char* argv[])
         }
         ++i;
     }
+    fwrite(reglist, sizeof(Reg), nregs, datafp);
 
     Secidx* secidxvec = (Secidx*)malloc((courselist->size)*sizeof(Secidx));
     SecInvList* secinvlistvec = (SecInvList*)malloc(nregs*sizeof(SecInvList));
