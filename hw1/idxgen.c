@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 
 typedef struct courselistelem {
     char course[3];
@@ -121,22 +122,90 @@ void gen_output_fname(char* outputfname, char* inputfname)
     strcat(outputfname, ".ind");
 }
 
+CourseList* courselist;
+int secinvlistcount = 0;
+int secidxcount = 0;
+
 void add_secidx_elem(Secidx* secidxvec, SecInvList* secinvlistvec, Reg reg)
 {
-    
+    strcpy(secinvlistvec[secinvlistcount].primkey, reg.primkey);
+
+    int i = 0;
+    while(i < secidxcount)
+    {
+        if(strcmp(reg.course, secidxvec[i].course) == 0)
+        {
+            int k = secidxvec[i].head;
+            int isfirst = 0;
+            if(strcmp(secinvlistvec[k].primkey, reg.primkey) >= 0)
+            {
+                secinvlistvec[secinvlistcount].next = secidxvec[i].head;
+                secidxvec[i].head = secinvlistcount;
+                isfirst = 1;
+            }
+            while(secinvlistvec[k].next != -1 && !isfirst)
+            {
+                if(strcmp(secinvlistvec[k].primkey, reg.primkey) < 0 &&
+                   strcmp(secinvlistvec[secinvlistvec[k].next].primkey, reg.primkey) >= 0)
+                {
+                    break;
+                } else {
+                    k = secinvlistvec[k].next;
+                }
+            }
+            if(!isfirst)
+            {
+                secinvlistvec[secinvlistcount].next = secinvlistvec[k].next;
+                secinvlistvec[k].next = secinvlistcount;
+            }
+            break;
+        }
+        ++i;
+    }
+    if(i == secidxcount)
+    {
+        strcpy(secidxvec[secidxcount].course, reg.course);
+        secidxvec[secidxcount].head = secinvlistcount;
+        secinvlistvec[secinvlistcount].next = -1;
+        ++secidxcount;
+    }
+    ++secinvlistcount;
 }
+
+void print_secidx(Secidx* secidxvec, SecInvList* secinvlistvec, int n_courses)
+{
+    int i = 0;
+    int j;
+    printf("Secondary Index:\n");
+    while(i < n_courses)
+    {
+        printf("Course: %s\n", secidxvec[i].course);
+        j = secidxvec[i].head;
+        while(j != -1)
+        {
+            printf("Key: %s\n", secinvlistvec[j].primkey);
+            j = secinvlistvec[j].next;
+        }
+        ++i;
+    }
+}
+
+char input_file[30];
+char output_prim_file[36];
+char output_sec_file[39];
+char output_sec_list[43];
+
+FILE *inputfp, *outputprimfp, *outputsecfp, *outputseclistfp;
 
 int main(int argc, char* argv[])
 {
-    char input_file[30];
-    char output_prim_file[36];
-    char output_sec_file[39];
-    FILE *inputfp, *outputprimfp, *outputsecfp;
     char inputbuffer[64];
     Reg *reglist;
+    courselist = CourseListCreate();
 
     strcpy(output_prim_file, "indice");
     strcpy(output_sec_file, "indicesec");
+    strcpy(output_sec_list, "indiceseclist");
 
     if(argc > 1)
     {
@@ -148,17 +217,18 @@ int main(int argc, char* argv[])
 
     gen_output_fname(output_prim_file, input_file);
     gen_output_fname(output_sec_file, input_file);
+    gen_output_fname(output_sec_list, input_file);
 
     int nregs = fsize(input_file)/64;
 
     inputfp = fopen(input_file, "r");
     outputprimfp = fopen(output_prim_file, "w");
     outputsecfp = fopen(output_sec_file, "w");
+    outputseclistfp = fopen(output_sec_list, "w");
 
     reglist = (Reg*)malloc(nregs*sizeof(Reg));
 
     int i = 0;
-    CourseList* courselist = CourseListCreate();
     while(i < nregs)
     {
         fread(inputbuffer, sizeof(char), 64, inputfp);
@@ -178,6 +248,7 @@ int main(int argc, char* argv[])
     while(i < nregs)
     {
         add_secidx_elem(secidxvec, secinvlistvec, reglist[i]);
+        ++i;
     }
 
     i = 0;
@@ -188,7 +259,10 @@ int main(int argc, char* argv[])
         fwrite(&reglist[i].rrn, sizeof(unsigned short), 1, outputprimfp);
         ++i;
     }
+    print_secidx(secidxvec, secinvlistvec, courselist->size);
     
+    fwrite(secidxvec, sizeof(Secidx), courselist->size, outputsecfp);
+    fwrite(secinvlistvec, sizeof(SecInvList), nregs, outputseclistfp);
 
     fclose(inputfp);
     fclose(outputprimfp);
