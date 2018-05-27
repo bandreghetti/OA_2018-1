@@ -2,6 +2,14 @@
 #include <string.h>
 #include "datatypes.c"
 
+void gen_output_fname(char* outputfname, char* inputfname, char ext[])
+{
+    strcat(outputfname, inputfname);
+    char* dotptr = strrchr(outputfname, '.');
+    *dotptr = '\0';
+    strcat(outputfname, ext);
+}
+
 unsigned long int fsize(char* fname)
 {
     FILE* fp;
@@ -14,18 +22,23 @@ unsigned long int fsize(char* fname)
 
 char input_secidx[31];
 char input_secinvlist[40];
+char data_file[31];
 FILE *fpidx, *fplist;
 
 int main(int argc, char* argv[])
 {    
-    if(argc > 2)
+    if(argc > 1)
     {
-        strcpy(input_secidx, argv[1]);
-        strcpy(input_secinvlist, argv[2]);
+        strcpy(data_file, argv[1]);
     } else {
         printf("ERROR: Missing argument(s).\n");
         return -1;
     }
+
+    strcpy(input_secidx, "indicesec");
+    strcpy(input_secinvlist, "indicesecinv");
+    gen_output_fname(input_secidx, data_file, ".ind");
+    gen_output_fname(input_secinvlist, data_file, ".ind");
 
     int secidxsize = fsize(input_secidx);
     int seclistsize = fsize(input_secinvlist);

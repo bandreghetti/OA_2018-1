@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
     strcpy(primidxfile, "indice");
     strcpy(secidxfile, "indicesec");
-    strcpy(secinvlistfile, "indiceseclist");
+    strcpy(secinvlistfile, "indicesecinv");
     gen_idx_fname(primidxfile, datafile, ".ind");
     gen_idx_fname(secidxfile, datafile, ".ind");
     gen_idx_fname(secinvlistfile, datafile, ".ind");
@@ -178,28 +178,57 @@ int main(int argc, char* argv[])
     scanf("%c", &newreg.class[0]);
     while(getchar() != '\n');
 
-    unsigned short newrrn = fsize(datafile)/sizeof(Reg);
-    datafp = fopen(datafile, "a");
+    /*Adding data to main file*/
+    unsigned long int nregs = fsize(datafile)/sizeof(Reg);
+    unsigned short newrrn = nregs;
+    datafp = fopen(datafile, "r+");
+    Reg reg;
+    i = 0;
+    while(i < nregs)
+    {
+        fread(&reg, sizeof(Reg), 1, datafp);
+        if(reg.matric[0] == '*')
+        {
+            newrrn = i;
+            fseek(datafp, -1*sizeof(Reg), SEEK_CUR);
+            break;
+        }
+        ++i;
+    }
     fwrite(&newreg, sizeof(Reg), 1, datafp);
     fclose(datafp);
 
     /*Adding data to primary index*/
-    unsigned long int primidxsize = (fsize(primidxfile)/sizeof(Primidx))+1;
-    Primidx* primidxvec = (Primidx*)malloc(primidxsize*sizeof(Primidx));
+    unsigned long int primidxsize = (fsize(primidxfile)/sizeof(Primidx));
+    Primidx* primidxvec = (Primidx*)malloc((primidxsize+1)*sizeof(Primidx));
     primidxfp = fopen(primidxfile, "r");
-    fread(primidxvec, sizeof(Primidx), primidxsize-1, primidxfp);
+    fread(primidxvec, sizeof(Primidx), primidxsize, primidxfp);
     fclose(primidxfp);
 
     char newprimkey[31];
     gen_primkey(newprimkey, newreg);
+    i = 0;
+    while(i < primidxsize)
+    {
+        if(primidxvec[i].primkey[0] == '*')
+        {
+            break;
+        }
+        ++i;
+    }
 
-    strcpy(primidxvec[primidxsize-1].primkey, newprimkey);
-    primidxvec[primidxsize-1].rrn = newrrn;
-
-    heapsort_prim_idx(primidxvec, primidxsize);
-
+    strcpy(primidxvec[i].primkey, newprimkey);
+    primidxvec[i].rrn = newrrn;
+    
     primidxfp = fopen(primidxfile, "w");
-    fwrite(primidxvec, sizeof(Primidx), primidxsize, primidxfp);
+    if(i == primidxsize)
+    {
+        heapsort_prim_idx(primidxvec, primidxsize+1);
+        fwrite(primidxvec, sizeof(Primidx), primidxsize+1, primidxfp);
+    } else {
+        heapsort_prim_idx(primidxvec, primidxsize);
+        fwrite(primidxvec, sizeof(Primidx), primidxsize, primidxfp);
+    }    
     fclose(primidxfp);
 
     /*Adding data to secondary index*/

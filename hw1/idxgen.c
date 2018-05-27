@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
 
     strcpy(output_prim_file, "indice");
     strcpy(output_sec_file, "indicesec");
-    strcpy(output_sec_list, "indiceseclist");
+    strcpy(output_sec_list, "indicesecinv");
     strcpy(output_data_file, "\0");
 
     if(argc > 1)
@@ -330,6 +330,7 @@ int main(int argc, char* argv[])
         ++i;
     }
 
+    /*
     i = 0;
     printf("Primary Index:\n\n");
     printf("PRIMARY KEY                   |RRN\n");
@@ -339,10 +340,12 @@ int main(int argc, char* argv[])
         ++i;
     }
     printf("\n");
-
+    */
     heapsort_sec_idx(secidxvec, courselist->size);
 
+    /*
     print_secidx(secidxvec, secinvlistvec, courselist->size);
+    */
 
     fwrite(secidxvec, sizeof(Secidx), courselist->size, outputsecfp);
     fwrite(secinvlistvec, sizeof(SecInvList), nregs, outputseclistfp);
@@ -352,6 +355,8 @@ int main(int argc, char* argv[])
     fclose(outputprimfp);
     fclose(outputsecfp);
     fclose(outputseclistfp);
+
+    printf("Index files for \"%s\" generated. Data compiled into \"%s\".\n", input_file, output_data_file);
 
     return 0;
 }
