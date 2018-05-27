@@ -281,7 +281,6 @@ int main(int argc, char* argv[])
     secinvlistfp = fopen(secinvlistfile, "w");
     if(newinvlistpos == secinvlistsize)
     {
-        printf("New student appended to the end of the invlist\n");
         fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize+1, secinvlistfp);
     } else {
         fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
