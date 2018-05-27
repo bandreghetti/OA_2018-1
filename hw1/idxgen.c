@@ -340,8 +340,10 @@ int main(int argc, char* argv[])
     }
     printf("\n");
 
+    heapsort_sec_idx(secidxvec, courselist->size);
+
     print_secidx(secidxvec, secinvlistvec, courselist->size);
-    
+
     fwrite(secidxvec, sizeof(Secidx), courselist->size, outputsecfp);
     fwrite(secinvlistvec, sizeof(SecInvList), nregs, outputseclistfp);
 

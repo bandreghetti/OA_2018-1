@@ -253,10 +253,9 @@ int main(int argc, char* argv[])
         fwrite(secidxvec, sizeof(Secidx), n_courses+1, secidxfp);
         fclose(secidxfp);
     } else {
-        printf("InvListHead = %d\n", invlisthead);
         int k = invlisthead;
         int isfirst = 0;
-        if(strcmp(secinvlistvec[k].primkey, newprimkey))
+        if(strcmp(secinvlistvec[k].primkey, newprimkey) >= 0)
         {
             secinvlistvec[newinvlistpos].next = invlisthead;
             secidxvec[courseidx].head = newinvlistpos;
@@ -277,13 +276,15 @@ int main(int argc, char* argv[])
             secinvlistvec[newinvlistpos].next = secinvlistvec[k].next;
             secinvlistvec[k].next = newinvlistpos;
         }
-        secinvlistfp = fopen(secinvlistfile, "w");
-        if(newinvlistpos == secinvlistsize)
-        {
-            fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize+1, secinvlistfp);
-        } else {
-            fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
-        }
+    }
+
+    secinvlistfp = fopen(secinvlistfile, "w");
+    if(newinvlistpos == secinvlistsize)
+    {
+        printf("New student appended to the end of the invlist\n");
+        fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize+1, secinvlistfp);
+    } else {
+        fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
     }
 
     return 0;
