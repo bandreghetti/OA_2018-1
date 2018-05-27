@@ -51,13 +51,17 @@ int isInList(char* course, CourseList* l)
 
 typedef struct reg {
     char matric[7];
-    char name[42];
+    char name[41];
     char op[3];
     char course[3];
     char class[2];
     char primkey[31];
-    unsigned short rrn;
 } Reg;
+
+typedef struct primidx {
+    char primkey[31];
+    unsigned short rrn;
+} Primidx;
 
 typedef struct secidx {
     char course[3];
@@ -74,7 +78,7 @@ Reg parsereg(char* regbytes)
     Reg tmpreg;
     strncpy(tmpreg.matric, &regbytes[0], 6);
     tmpreg.matric[6] = '\0';
-    strncpy(tmpreg.name, &regbytes[7], 41);
+    strncpy(tmpreg.name, &regbytes[7], 40);
     tmpreg.name[41] = '\0';
     strncpy(tmpreg.op, &regbytes[48], 2);
     tmpreg.op[2] = '\0';
@@ -102,6 +106,88 @@ Reg parsereg(char* regbytes)
     tmpreg.primkey[dstidx] = '\0';
 
     return tmpreg;
+}
+
+void heapsort_prim_idx(Primidx* primidxvec, int nregs)
+{
+    int i = nregs/2;
+    int parentidx, childidx;
+    Primidx tmpreg;
+    while(1)
+    {
+        if (i > 0) {
+            --i;
+            tmpreg = primidxvec[i];
+        } else {
+            --nregs;
+            if(!nregs)
+            {
+                return;
+            }
+            tmpreg = primidxvec[nregs];
+            primidxvec[nregs] = primidxvec[0];
+        }
+        
+        parentidx = i;
+        childidx = 2*i + 1;
+        while(childidx < nregs)
+        {
+            if((childidx + 1 < nregs) && (strcmp(primidxvec[childidx + 1].primkey, primidxvec[childidx].primkey) > 0))
+            {
+                ++childidx;
+            }
+            if(strcmp(primidxvec[childidx].primkey, tmpreg.primkey) > 0)
+            {
+                primidxvec[parentidx] = primidxvec[childidx];
+                parentidx = childidx;
+                childidx = 2*parentidx + 1;
+            } else {
+                break;
+            }
+        }
+        primidxvec[parentidx] = tmpreg;
+    }
+}
+
+void heapsort_sec_idx(Secidx* secidxvec, int ncourses)
+{
+    int i = ncourses/2;
+    int parentidx, childidx;
+    Secidx tmpreg;
+    while(1)
+    {
+        if (i > 0) {
+            --i;
+            tmpreg = secidxvec[i];
+        } else {
+            --ncourses;
+            if(!ncourses)
+            {
+                return;
+            }
+            tmpreg = secidxvec[ncourses];
+            secidxvec[ncourses] = secidxvec[0];
+        }
+        
+        parentidx = i;
+        childidx = 2*i + 1;
+        while(childidx < ncourses)
+        {
+            if((childidx + 1 < ncourses) && (strcmp(secidxvec[childidx + 1].course, secidxvec[childidx].course) > 0))
+            {
+                ++childidx;
+            }
+            if(strcmp(secidxvec[childidx].course, tmpreg.course) > 0)
+            {
+                secidxvec[parentidx] = secidxvec[childidx];
+                parentidx = childidx;
+                childidx = 2*parentidx + 1;
+            } else {
+                break;
+            }
+        }
+        secidxvec[parentidx] = tmpreg;
+    }
 }
 
 unsigned long int fsize(char* fname)
@@ -202,6 +288,8 @@ int main(int argc, char* argv[])
 {
     char inputbuffer[64];
     Reg *reglist;
+    Primidx *primidxvec;
+
     courselist = CourseListCreate();
 
     strcpy(output_prim_file, "indice");
@@ -231,13 +319,14 @@ int main(int argc, char* argv[])
     datafp = fopen(output_data_file, "w");
 
     reglist = (Reg*)malloc(nregs*sizeof(Reg));
-
+    primidxvec = (Primidx*)malloc(nregs*sizeof(Primidx));
     int i = 0;
     while(i < nregs)
     {
         fread(inputbuffer, sizeof(char), 64, inputfp);
         reglist[i] = parsereg(inputbuffer);
-        reglist[i].rrn = i;
+        strcpy(primidxvec[i].primkey, reglist[i].primkey);
+        primidxvec[i].rrn = i;
         if(!isInList(reglist[i].course, courselist))
         {
             appendToCourseList(reglist[i].course, courselist);
@@ -245,6 +334,8 @@ int main(int argc, char* argv[])
         ++i;
     }
     fwrite(reglist, sizeof(Reg), nregs, datafp);
+    heapsort_prim_idx(primidxvec, nregs);
+    fwrite(primidxvec, sizeof(Primidx), nregs, outputprimfp);
 
     Secidx* secidxvec = (Secidx*)malloc((courselist->size)*sizeof(Secidx));
     SecInvList* secinvlistvec = (SecInvList*)malloc(nregs*sizeof(SecInvList));
@@ -259,9 +350,7 @@ int main(int argc, char* argv[])
     i = 0;
     while(i < nregs)
     {
-        printf("Primary Key: %s | RRN: %d\n", reglist[i].primkey, reglist[i].rrn);
-        fprintf(outputprimfp, "%s", reglist[i].primkey);
-        fwrite(&reglist[i].rrn, sizeof(unsigned short), 1, outputprimfp);
+        printf("Primary Key: %s | RRN: %d\n", primidxvec[i].primkey, primidxvec[i].rrn);
         ++i;
     }
     print_secidx(secidxvec, secinvlistvec, courselist->size);
@@ -269,9 +358,11 @@ int main(int argc, char* argv[])
     fwrite(secidxvec, sizeof(Secidx), courselist->size, outputsecfp);
     fwrite(secinvlistvec, sizeof(SecInvList), nregs, outputseclistfp);
 
+    fclose(datafp);
     fclose(inputfp);
     fclose(outputprimfp);
     fclose(outputsecfp);
+    fclose(outputseclistfp);
 
     return 0;
 }
