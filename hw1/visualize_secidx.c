@@ -1,15 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-
-typedef struct secidx {
-    char course[3];
-    short head;
-} Secidx;
-
-typedef struct secinvlist {
-    char primkey[31];
-    short next;
-} SecInvList;
+#include "datatypes.c"
 
 unsigned long int fsize(char* fname)
 {
@@ -44,10 +35,6 @@ int main(int argc, char* argv[])
 
     int n_courses = secidxsize/sizeof(Secidx);
     int n_regs = seclistsize/sizeof(SecInvList);
-
-    printf("Secidxsize = %d\n", secidxsize);
-    printf("sizeof(Secidx) = %ld\n", sizeof(Secidx));
-    printf("n_courses = %d\n\n", n_courses);
 
     Secidx secidx;
     SecInvList secinvlist;

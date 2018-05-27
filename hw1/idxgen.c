@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include "datatypes.c"
 
 typedef struct courselistelem {
     char course[3];
@@ -49,31 +50,29 @@ int isInList(char* course, CourseList* l)
     return 0;
 }
 
-typedef struct reg {
-    char matric[7];
-    char name[41];
-    char op[3];
-    char course[3];
-    char class[2];
-    char primkey[31];
-} Reg;
+void gen_primkey(char primkey[], Reg reg)
+{
+    strcpy(primkey, reg.matric);
+    char* srcptr = reg.name;
+    int dstidx = 6;
+    while(*srcptr && dstidx < 30)
+    {
+        if(*srcptr != ' ')
+        {
+            primkey[dstidx] = toupper(*srcptr);
+            ++dstidx;
+        }
+        ++srcptr;
+    }
+    while(dstidx < 30)
+    {
+        primkey[dstidx] = ' ';
+        ++dstidx;
+    }
+    primkey[dstidx] = '\0';
+}
 
-typedef struct primidx {
-    char primkey[31];
-    unsigned short rrn;
-} Primidx;
-
-typedef struct secidx {
-    char course[3];
-    short head;
-} Secidx;
-
-typedef struct secinvlist {
-    char primkey[31];
-    short next;
-} SecInvList;
-
-Reg parsereg(char* regbytes)
+Reg parsereg(char* regbytes, Primidx* primidx)
 {
     Reg tmpreg;
     strncpy(tmpreg.matric, &regbytes[0], 6);
@@ -86,24 +85,7 @@ Reg parsereg(char* regbytes)
     tmpreg.course[2] = '\0';
     strncpy(tmpreg.class, &regbytes[61], 1);
     tmpreg.class[1] = '\0';
-    strcpy(tmpreg.primkey, tmpreg.matric);
-    char* srcptr = tmpreg.name;
-    int dstidx = 6;
-    while(*srcptr && dstidx < 30)
-    {
-        if(*srcptr != ' ')
-        {
-            tmpreg.primkey[dstidx] = toupper(*srcptr);
-            ++dstidx;
-        }
-        ++srcptr;
-    }
-    while(dstidx < 30)
-    {
-        tmpreg.primkey[dstidx] = ' ';
-        ++dstidx;
-    }
-    tmpreg.primkey[dstidx] = '\0';
+    gen_primkey(primidx->primkey, tmpreg); 
 
     return tmpreg;
 }
@@ -214,7 +196,9 @@ int secidxcount = 0;
 
 void add_secidx_elem(Secidx* secidxvec, SecInvList* secinvlistvec, Reg reg)
 {
-    strcpy(secinvlistvec[secinvlistcount].primkey, reg.primkey);
+    char primkey[31];
+    gen_primkey(primkey, reg);
+    strcpy(secinvlistvec[secinvlistcount].primkey, primkey);
 
     int i = 0;
     while(i < secidxcount)
@@ -223,7 +207,7 @@ void add_secidx_elem(Secidx* secidxvec, SecInvList* secinvlistvec, Reg reg)
         {
             int k = secidxvec[i].head;
             int isfirst = 0;
-            if(strcmp(secinvlistvec[k].primkey, reg.primkey) >= 0)
+            if(strcmp(secinvlistvec[k].primkey, primkey) >= 0)
             {
                 secinvlistvec[secinvlistcount].next = secidxvec[i].head;
                 secidxvec[i].head = secinvlistcount;
@@ -231,8 +215,8 @@ void add_secidx_elem(Secidx* secidxvec, SecInvList* secinvlistvec, Reg reg)
             }
             while(secinvlistvec[k].next != -1 && !isfirst)
             {
-                if(strcmp(secinvlistvec[k].primkey, reg.primkey) < 0 &&
-                   strcmp(secinvlistvec[secinvlistvec[k].next].primkey, reg.primkey) >= 0)
+                if(strcmp(secinvlistvec[k].primkey, primkey) < 0 &&
+                   strcmp(secinvlistvec[secinvlistvec[k].next].primkey, primkey) >= 0)
                 {
                     break;
                 } else {
@@ -262,14 +246,14 @@ void print_secidx(Secidx* secidxvec, SecInvList* secinvlistvec, int n_courses)
 {
     int i = 0;
     int j;
-    printf("Secondary Index:\n");
+    printf("Secondary Index:\n\n");
     while(i < n_courses)
     {
-        printf("Course: %s\n", secidxvec[i].course);
+        printf("Primary key for students from course: %s\n", secidxvec[i].course);
         j = secidxvec[i].head;
         while(j != -1)
         {
-            printf("Key: %s\n", secinvlistvec[j].primkey);
+            printf("    %s\n", secinvlistvec[j].primkey);
             j = secinvlistvec[j].next;
         }
         ++i;
@@ -324,8 +308,7 @@ int main(int argc, char* argv[])
     while(i < nregs)
     {
         fread(inputbuffer, sizeof(char), 64, inputfp);
-        reglist[i] = parsereg(inputbuffer);
-        strcpy(primidxvec[i].primkey, reglist[i].primkey);
+        reglist[i] = parsereg(inputbuffer, &primidxvec[i]);
         primidxvec[i].rrn = i;
         if(!isInList(reglist[i].course, courselist))
         {
@@ -348,11 +331,15 @@ int main(int argc, char* argv[])
     }
 
     i = 0;
+    printf("Primary Index:\n\n");
+    printf("PRIMARY KEY                   |RRN\n");
     while(i < nregs)
     {
-        printf("Primary Key: %s | RRN: %d\n", primidxvec[i].primkey, primidxvec[i].rrn);
+        printf("%s|%03d\n", primidxvec[i].primkey, primidxvec[i].rrn);
         ++i;
     }
+    printf("\n");
+
     print_secidx(secidxvec, secinvlistvec, courselist->size);
     
     fwrite(secidxvec, sizeof(Secidx), courselist->size, outputsecfp);

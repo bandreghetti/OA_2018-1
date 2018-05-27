@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-
-typedef struct primidx {
-    char primkey[31];
-    unsigned short rrn;
-} Primidx;
+#include "datatypes.c"
 
 unsigned long int fsize(char* fname)
 {
