@@ -46,5 +46,7 @@ int main(int argc, char* argv[])
     {
         fread(&reg, sizeof(Reg), 1, fp);
         printf("%03d|%s|%s|%s|%-8s|%s\n", i, reg.matric, reg.name, reg.op, reg.course, reg.class);
-    }    
+    }
+
+    return 0;
 }

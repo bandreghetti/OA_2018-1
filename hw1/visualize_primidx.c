@@ -42,5 +42,7 @@ int main(int argc, char* argv[])
     {
         fread(&primidx, sizeof(Primidx), 1, fp);
         printf("%s|%03d\n", primidx.primkey, primidx.rrn);
-    }    
+    }
+
+    return 0;
 }
