@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
     printf("COURSE|HEAD          INDEX|PRIMARY KEY                   |NEXT\n");
     while(i < n_courses || j < n_regs)
     {
-        // printf("%d < %d\n", i, n_courses);
         if(i < n_courses)
         {
             fread(&secidx, sizeof(Secidx), 1, fpidx);

@@ -11,12 +11,9 @@ hw1/lista2\.txt
 
 *.data
 
-hw1/idxgen
+!*.c
 
-hw1/view_primidx
-
-hw1/viewsecidx
-
-hw1/visualize_data
-
-hw1/visualize_primidx
+visualize*
+view*
+idxgen
+addreg

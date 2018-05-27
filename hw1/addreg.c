@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "datatypes.c"
 
 char datafile[31];
@@ -37,6 +38,16 @@ void gen_primkey(char primkey[], Reg reg)
         ++dstidx;
     }
     primkey[dstidx] = '\0';
+}
+
+unsigned long int fsize(char* fname)
+{
+    FILE* fp;
+    fp = fopen(fname, "r");
+    fseek(fp, 0L, SEEK_END);
+    int size = ftell(fp);
+    fclose(fp);
+    return size;
 }
 
 void heapsort_prim_idx(Primidx* primidxvec, int nregs)
@@ -146,6 +157,16 @@ int main(int argc, char* argv[])
     while(getchar() != '\n');
     printf("NAME: ");
     scanf("%40[^\n]s", newreg.name);
+    int i = 0;
+    while(i < 40)
+    {
+        if(newreg.name[i] == '\0')
+        {
+            newreg.name[i] = ' ';
+            newreg.name[i+1] = '\0';
+        }
+        ++i;
+    }
     while(getchar() != '\n');
     printf("OP: ");
     scanf("%2s", newreg.op);
@@ -154,7 +175,7 @@ int main(int argc, char* argv[])
     scanf("%2s", newreg.course);
     while(getchar() != '\n');
     printf("CLASS: ");
-    scanf("%1s", newreg.class);
+    scanf("%c", &newreg.class[0]);
     while(getchar() != '\n');
 
     unsigned short newrrn = fsize(datafile)/sizeof(Reg);
@@ -162,12 +183,13 @@ int main(int argc, char* argv[])
     fwrite(&newreg, sizeof(Reg), 1, datafp);
     fclose(datafp);
 
-    unsigned long int primidxsize = fsize(primidxfile)+1;
-    Primidx* primidxvec = (Primidx*)malloc((primidxsize)*sizeof(Primidx))
+    /*Adding data to primary index*/
+    unsigned long int primidxsize = (fsize(primidxfile)/sizeof(Primidx))+1;
+    Primidx* primidxvec = (Primidx*)malloc(primidxsize*sizeof(Primidx));
     primidxfp = fopen(primidxfile, "r");
-    fread(primidxvec, sizeof(Primidx), primidxsize, primidxfp);
+    fread(primidxvec, sizeof(Primidx), primidxsize-1, primidxfp);
     fclose(primidxfp);
-    
+
     char newprimkey[31];
     gen_primkey(newprimkey, newreg);
 
@@ -187,10 +209,10 @@ int main(int argc, char* argv[])
     Secidx* secidxvec = (Secidx*)malloc(n_courses*sizeof(Secidx)+1);
     secidxfp = fopen(secidxfile, "r");
     fread(secidxvec, sizeof(Secidx), n_courses, secidxfp);
-    fclose(secidxfile);
+    fclose(secidxfp);
     
     int invlisthead = -1;
-    int i = 0;
+    i = 0;
     int courseidx = n_courses;;
     while(i < n_courses)
     {
@@ -203,27 +225,23 @@ int main(int argc, char* argv[])
         ++i;
     }
 
-    SecInvList secinvlistitem;
-    secinvlistfp = fopen(secidxfile, "r+");
+    SecInvList* secinvlistvec = (SecInvList*)malloc((secinvlistsize+1)*sizeof(SecInvList));
+    secinvlistfp = fopen(secinvlistfile, "r");
+    fread(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
     int newinvlistpos = secinvlistsize;
     i = 0;
     while(i < secinvlistsize)
     {
-        fread(&secinvlistitem, sizeof(SecInvList), 1, secinvlistfp);
-        if(secinvlistitem.primkey[0] == '*') /*If reusable slot is found*/
+        if(secinvlistvec[i].primkey[0] == '*') /*If reusable slot is found*/
         {
             newinvlistpos = i;
             break;
         }
         ++i;
     }
-    fseek(secinvlistfp, -1*sizeof(SecInvList), SEEK_CUR);
-    strcpy(secinvlistitem.primkey, newprimkey);
-    secinvlistitem.next = -1;
-    fwrite(&secinvlistitem, sizeof(SecInvList), 1, secinvlistfp);
+    strcpy(secinvlistvec[newinvlistpos].primkey, newprimkey);
+    secinvlistvec[newinvlistpos].next = -1;
     fclose(secinvlistfp);
-
-    Secidx newsecidx;
 
     /*If new course is added*/
     if(invlisthead == -1)
@@ -235,9 +253,7 @@ int main(int argc, char* argv[])
         fwrite(secidxvec, sizeof(Secidx), n_courses+1, secidxfp);
         fclose(secidxfp);
     } else {
-        secinvlistfp = fopen(secinvlistfile, "r");
-        SecInvList* secinvlistvec = (SecInvList*)malloc((secinvlistsize+1)*sizeof(SecInvList))
-        fread(secinvlistvec, sizeof(SecInvList), secinvlistsize+1, secinvlistfp);
+        printf("InvListHead = %d\n", invlisthead);
         int k = invlisthead;
         int isfirst = 0;
         if(strcmp(secinvlistvec[k].primkey, newprimkey))
@@ -249,7 +265,7 @@ int main(int argc, char* argv[])
         while(secinvlistvec[k].next != -1 && !isfirst)
         {
             if(strcmp(secinvlistvec[k].primkey, newprimkey) < 0 &&
-               strcmp(secinvlistvec[secinvlistvec[k].next].primkey, primkey) >= 0)
+               strcmp(secinvlistvec[secinvlistvec[k].next].primkey, newprimkey) >= 0)
             {
                 break;
             } else {
@@ -260,6 +276,13 @@ int main(int argc, char* argv[])
         {
             secinvlistvec[newinvlistpos].next = secinvlistvec[k].next;
             secinvlistvec[k].next = newinvlistpos;
+        }
+        secinvlistfp = fopen(secinvlistfile, "w");
+        if(newinvlistpos == secinvlistsize)
+        {
+            fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize+1, secinvlistfp);
+        } else {
+            fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
         }
     }
 

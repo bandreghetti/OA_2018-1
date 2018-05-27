@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 gcc -ansi idxgen.c -o idxgen
 gcc -ansi viewdata.c -o viewdata
