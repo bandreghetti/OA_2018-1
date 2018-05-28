@@ -7,3 +7,4 @@ gcc -ansi viewsecidx.c -o viewsecidx
 gcc -ansi addreg.c -o addreg
 gcc -ansi delreg.c -o delreg
 gcc -ansi mergefiles.c -o mergefiles
+gcc -ansi updatereg.c -o updatereg
