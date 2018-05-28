@@ -288,6 +288,9 @@ int main(int argc, char* argv[])
         {
             secinvlistvec[newinvlistpos].next = invlisthead;
             secidxvec[courseidx].head = newinvlistpos;
+            secidxfp = fopen(secidxfile, "w");
+            fwrite(secidxvec, sizeof(Secidx), n_courses, secidxfp);
+            fclose(secidxfp);
             isfirst = 1;
         }
         while(secinvlistvec[k].next != -1 && !isfirst)
