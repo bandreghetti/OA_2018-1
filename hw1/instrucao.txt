@@ -1,0 +1,54 @@
+Compilar todos os programas em Ansi C e gerar os arquivos executáveis:
+<./build.sh>
+
+Lista 1:
+Gerar arquivo de índices primários e secundários da 'lista1.txt':
+<./idxgen lista1.txt>
+Serão gerados 'indicelista1.ind' e 'lista1.data', arquivos binários que podem ter seu conteúdo visualizado no terminal por meio do comando:
+<./viewprimidx lista1.data>
+Será gerado 'indiceseclista1.ind', um arquivo binário que poderá ser visualizado no terminal com o comando:
+<./viewsecidx lista1.data>
+
+Inserir novos registros de alunos em 'lista1.data':
+<./addreg lista1.data>
+Será adicionado um novo registro em 'lista1.data', um arquivo binário que poderá ser visualizado no terminal com o seguinte comando:
+<./viewdata lista1.data>
+Lembrando que o campo matrícula possui 6 bits, os campos OP e curso, 2 bits e o campo turma, 1 bit.
+Caso os campos do registro adicionado contenham mais bits do que o esperado, estes serão truncados em 'lista1.data'
+
+Excluir registros de alunos em 'lista1.data':
+<./delreg lista1.data>
+Será exlcuído dos arquivos 'indicelista1.ind', 'indiceseclista1.ind' e 'lista1.data' o registro escolhido pelo usuário em 'lista1.data', podendo-se visualizar no terminal utilizando-se os comandos:
+<./viewprimidx lista1.data>
+<./viewsecidx lista1.data>
+<./viewdata lista1.data>
+Caso o registro não exista, será avisado ao usuário por meio de uma mensagem no terminal
+
+Lista 2:
+Gerar arquivo de índices primários e secundários da 'lista2.txt':
+<./idxgen lista2.txt>
+Serão gerados 'indicelista2.ind' e 'lista2.data', arquivos binários que poderão ter seu conteúdo visualizado no terminal por meio do seguinte comando:
+<./viewprimidx lista2.data>
+Será gerado 'indiceseclista2.ind', um arquivo binário que poderá ser visualizado no terminal com o comando:
+<./viewsecidx lista2.data>
+
+Inserir novos registros de alunos em 'lista2.data':
+<./addreg lista2.data>
+Será adicionado um novo registro em 'lista2.data', um arquivo binário que poderá ser visualizado no terminal com o seguinte comando:
+<./viewdata lista2.data>
+Lembrando que o campo matrícula possui 6 bits, os campos OP e curso, 2 bits e o campo turma, 1 bit.
+Caso os campos do registro adicionado contenham mais bits do que o esperado, estes serão truncados em 'lista1.data'
+
+Excluir registros de alunos em 'lista2.data':
+<./delreg lista2.data>
+Será exlcuído dos arquivos 'indicelista2.ind', 'indiceseclista2.ind' e 'lista2.data' o registro escolhido pelo usuário em 'lista2.data', podendo-se visualizar no terminal utilizando-se os comandos::
+<./viewprimidx lista2.data>
+<./viewsecidx lista2.data>
+<./viewdata lista2.data>
+Caso o registro não exista, será avisado ao usuário por meio de uma mensagem no terminal
+
+Lista 1 e Lista 2:
+Unir 'lista1.data' a 'lista2.data': 
+<./mergefiles lista1.data lista2.data>
+Serão gerados 'indicelista12.ind' e 'lista12.data', arquivos binário que poderão ter seu conteúdo visualizado no terminal com o comando:
+<./viewdata lista12.data>
