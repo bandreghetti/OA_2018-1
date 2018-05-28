@@ -283,9 +283,6 @@ int main(int argc, char* argv[])
         ++i;
     }
     heapsort_sec_idx(secidxvec, courselist->size);
-    secidxfpout = fopen(secidxfileout, "w");
-    fwrite(secidxvec, sizeof(Secidx), courselist->size, secidxfpout);
-    fclose(secidxfpout);
 
     SecInvList* secinvlistvec = (SecInvList*)malloc(outsize*sizeof(SecInvList));
     datafpout = fopen(datafileout, "r");
@@ -320,6 +317,9 @@ int main(int argc, char* argv[])
         ++i;
     }
 
+    secidxfpout = fopen(secidxfileout, "w");
+    fwrite(secidxvec, sizeof(Secidx), courselist->size, secidxfpout);
+    fclose(secidxfpout);
     secinvlistfpout = fopen(secinvlistfileout, "w");
     fwrite(secinvlistvec, sizeof(SecInvList), outsize, secinvlistfpout);
     fclose(secinvlistfpout);
