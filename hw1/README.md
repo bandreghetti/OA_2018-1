@@ -1,16 +1,16 @@
-Aluno: Bruno Andreghetti Dantas         Matrícula: 15/0007060
-Aluna: Sara Gomes Cardoso               Matrícula: 15/0021712
----
+Aluno: Bruno Andreghetti Dantas                 Matrícula: 15/0007060
+Aluna: Sara Gomes Cardoso                       Matrícula: 15/0021712
+---------------------------------------------------------------------
 
-##Comando geral
+## Comando geral
 
-*Para compilar todos os programas em Ansi C e gerar os arquivos executáveis:
+* Para compilar todos os programas em Ansi C e gerar os arquivos executáveis:
 
 `./build.sh`
 
-##Comandos relacionados à lista 1
+## Comandos relacionados à lista 1
 
-*Para gerar arquivo de índices primários e secundários da `lista1.txt`:
+* Para gerar arquivo de índices primários e secundários da `lista1.txt`:
 
 ```
 $ ./idxgen lista1.txt
@@ -19,27 +19,27 @@ $ ./idxgen lista1.txt
 Serão gerados `indicelista1.ind`, `indiceseclista1.ind` e `lista1.data`,
 arquivos binários que podem ter seu conteúdo visualizado no terminal.
 
-*Para visualizar a lista de índices primários, deve-se usar o seguinte 
+* Para visualizar a lista de índices primários, deve-se usar o seguinte 
 comando no terminal:
 
 ```
 $ ./viewprimidx lista1.data
 ```
 
-*Para visualizar a lista de índices secundários, deve-se usar o seguinte 
+* Para visualizar a lista de índices secundários, deve-se usar o seguinte 
 comando no terminal:
 
 ```
 .$ /viewsecidx lista1.data
 ```
 
-*Para inserir novos registros de alunos em 'lista1.data':
+* Para inserir novos registros de alunos em 'lista1.data':
 
 ```
 .$ /addreg lista1.data
 ```
 
-*Será adicionado um novo registro em `lista1.data`, `indicelista1.ind`, 
+* Será adicionado um novo registro em `lista1.data`, `indicelista1.ind`, 
 `indiceseclista1.ind` e em `indicesecinvlista1.ind`, podendo-se 
 visualizar o resultado no terminal com o comando:
 
@@ -47,14 +47,14 @@ visualizar o resultado no terminal com o comando:
 $ ./viewdata lista1.data
 ```
 
-*Para visualizar a adição do registro na lista de índices primários, deve-se 
+* Para visualizar a adição do registro na lista de índices primários, deve-se 
 usar o seguinte comando no terminal:
 
 ```
 $ ./viewprimidx lista1.data
 ```
 
-*Para visualizar a adição do registro na lista de índices secundários, deve-se
+* Para visualizar a adição do registro na lista de índices secundários, deve-se
 usar o seguinte comando no terminal:
 
 ```
@@ -75,7 +75,7 @@ $ ./delreg lista1.data
 Será excluído dos arquivos `indicelista1.ind`, `indiceseclista1.ind`, 
 `indicesecinvlista1.ind` e `lista1.data` o registro escolhido pelo usuário.
 
-*Para visualizar a remoção na lista de índices primários, deve-se utilizar o 
+* Para visualizar a remoção na lista de índices primários, deve-se utilizar o 
 seguinte comando no terminal:
 
 ```
@@ -89,7 +89,7 @@ seguinte comando no terminal:
 $ ./viewsecidx lista1.data
 ```
 
-*Para visualizar a remoção na lista, com todos os campos explícitos, deve-se 
+* Para visualizar a remoção na lista, com todos os campos explícitos, deve-se 
 utilizar o seguinte comando no terminal:
 
 ```
@@ -99,9 +99,30 @@ $ ./viewdata lista1.data
 Caso o registro não exista, será avisado ao usuário por meio de uma mensagem no 
 terminal.
 
-##Comandos relacionados a lista 2
+* Para atualizar algum campos dos registros da 'lista1.data', deve-se utilizar 
+o seguinte comando no terminal:
 
-*Para gerar arquivo de índices primários e secundários da `lista2.txt`:
+```
+$ ./updatereg lista1.data
+```
+
+Os passos seguintes são:
+        
+        1) Digitar a matrícula atual do aluno que deseja-se alterar os dados; 
+        2) Digitar o nome do aluno;
+        3) Digitar a opção escolhida: 1,2,3,4 ou 5;
+        4) Digitar a alteração desejada para o campo escolhido.
+
+No terminal aparecerá o novo conteúdo do campo alterado. Para visualizar a 
+alteração na lista, deve-se usar o seguinte comando:
+
+```
+$ ./viewdata lista1.data
+```
+
+## Comandos relacionados a lista 2
+
+* Para gerar arquivo de índices primários e secundários da `lista2.txt`:
 
 ```
 $ ./idxgen lista2.txt
@@ -110,27 +131,27 @@ $ ./idxgen lista2.txt
 Serão gerados `indicelista2.ind`, `indiceseclista2.ind` e `lista2.data`, 
 arquivos binários que poderão ter seu conteúdo visualizado no terminal.
 
-*Para visualizar a lista de índices primários, deve-se usar o seguinte comando
+* Para visualizar a lista de índices primários, deve-se usar o seguinte comando
 no terminal:
 
 ```
 $ ./viewprimidx lista2.data
 ```
 
-*Para visualizar a lista de índices secundários, deve-se usar o seguinte 
+* Para visualizar a lista de índices secundários, deve-se usar o seguinte 
 comando no terminal:
 
 ```
 $ ./viewsecidx lista2.data
 ```
 
-*Para inserir novos registros de alunos em `lista2.data`:
+* Para inserir novos registros de alunos em `lista2.data`:
 
 ```
 $ ./addreg lista2.data
 ```
 
-*Será adicionado um novo registro em `lista2.data`,`indicelista2.ind`,
+* Será adicionado um novo registro em `lista2.data`,`indicelista2.ind`,
 `indiceseclista2.ind` e em `indicesecinvlista2.ind`, podendo-se visualizar o
 resultado no terminal com os comandos:
 
@@ -138,14 +159,14 @@ resultado no terminal com os comandos:
 $ ./viewdata lista2.data
 ```
 
-*Para visualizar a adição do registro na lista de índices primários, deve-se 
+* Para visualizar a adição do registro na lista de índices primários, deve-se 
 usar o seguinte comando no terminal:
 
 ```
 $ ./viewprimidx lista2.data
 ```
 
-*Para visualizar a adição do registro na lista de índices secundários, deve-se
+* Para visualizar a adição do registro na lista de índices secundários, deve-se
 usar o seguinte comando no terminal:
 
 ```
@@ -166,21 +187,21 @@ $ ./delreg lista2.data
 Será exlcuído dos arquivos `indicelista2.ind`, `indiceseclista2.ind`, 
 `indicesecinvlista2.ind` e `lista2.data` o registro escolhido pelo usuário.
 
-*Para visualizar a remoção na lista de índices primários, deve-se utilizar o 
+* Para visualizar a remoção na lista de índices primários, deve-se utilizar o 
 seguinte comando no terminal:
 
 ```
 $ ./viewprimidx lista2.data
 ```
 
-*Para visualizar a remoção na lista de índices secundários, deve-se utilizar o 
+* Para visualizar a remoção na lista de índices secundários, deve-se utilizar o 
 seguinte comando no terminal:
 
 ```
 $ ./viewsecidx lista2.data
 ```
 
-*Para visualizar a remoção na lista, com todos os campos explícitos, deve-se 
+* Para visualizar a remoção na lista, com todos os campos explícitos, deve-se 
 utilizar o seguinte comando no terminal:
 
 ```
@@ -190,29 +211,69 @@ $ ./viewdata lista2.data
 Caso o registro não exista, será avisado ao usuário por meio de uma mensagem no
 terminal.
 
-#Comandos relacionados às listas 1 e 2
+* Para atualizar algum campos dos registros da 'lista2.data', deve-se utilizar 
+o seguinte comando no terminal:
 
-*Unir `lista1.data` e `lista2.data`: 
+```
+$ ./updatereg lista2.data
+```
+
+Os passos seguintes são:
+        
+        1) Digitar a matrícula atual do aluno que deseja-se alterar os dados; 
+        2) Digitar o nome do aluno;
+        3) Digitar a opção escolhida: 1,2,3,4 ou 5;
+        4) Digitar a alteração desejada para o campo escolhido.
+
+No terminal aparecerá o novo conteúdo do campo alterado. Para visualizar a 
+alteração na lista, deve-se usar o seguinte comando:
+
+```
+$ ./viewdata lista2.data
+```
+## Comandos relacionados às listas 1 e 2
+
+* Unir `lista1.data` e `lista2.data`: 
 
 ```
 $ ./mergefiles lista1.data lista2.data
 ```
 
-*Serão gerados `indicelista12.ind`, `indicesecinvlista12.ind` e `lista12.data`, 
+* Serão gerados `indicelista12.ind`, `indicesecinvlista12.ind` e `lista12.data`, 
 o resultado poderá ser observado no terminal com o seguinte comando:
 
 ```
 $ ./viewdata lista12.data
 ```
 
-*Para visualizar o a união das listas de índices primários:
+* Para visualizar o a união das listas de índices primários:
 
 ```
 $ ./viewprimidx lista12.data
 ```
 
-*Para visualizar o a união das listas de índices secundários:
+* Para visualizar o a união das listas de índices secundários:
 
 ```
 $ ./viewsecidx lista12.data
+```
+* Para atualizar algum campos dos registros da 'lista12.data', deve-se utilizar 
+o seguinte comando no terminal:
+
+```
+$ ./updatereg lista12.data
+```
+
+Os passos seguintes são:
+        
+        1) Digitar a matrícula atual do aluno que deseja-se alterar os dados; 
+        2) Digitar o nome do aluno;
+        3) Digitar a opção escolhida: 1,2,3,4 ou 5;
+        4) Digitar a alteração desejada para o campo escolhido.
+
+No terminal aparecerá o novo conteúdo do campo alterado. Para visualizar a 
+alteração na lista, deve-se usar o seguinte comando:
+
+```
+$ ./viewdata lista12.data
 ```
