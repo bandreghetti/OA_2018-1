@@ -284,8 +284,8 @@ int main(int argc, char* argv[])
         heapsort_prim_idx(primidxvec, primidxsize/sizeof(Primidx));
         rewind(primidxfp);
         fwrite(primidxvec, primidxsize, 1, primidxfp);
+        fclose(primidxfp);
     }
-    fclose(primidxfp);
    
     int head, prevptr, ptr, courseidx, newsecrrn;
     unsigned long secidxsize = fsize(secidxfile)/sizeof(Secidx);
@@ -366,6 +366,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    int newcourseflag = 0;
     if(input == 4)
     {
         i = 0;
@@ -386,10 +387,7 @@ int main(int argc, char* argv[])
             strcpy(secidxvec[secidxsize].course, newreg.course);
             secidxvec[secidxsize].head = newsecrrn;
             heapsort_sec_idx(secidxvec, secidxsize+1);
-            if(secidxfp != NULL) fclose(secidxfp);
-            secidxfp = fopen(secidxfile, "w");
-            fwrite(secidxvec, sizeof(Secidx), secidxsize+1, secidxfp);
-            fclose(secidxfp);
+            newcourseflag = 1;
         } else {
             if(strcmp(secinvlistvec[head].primkey, newprimkey) >= 0)
             {
@@ -402,7 +400,7 @@ int main(int argc, char* argv[])
             while(ptr != -1)
             {
                 if(strcmp(secinvlistvec[prevptr].primkey, newprimkey) <= 0 &&
-                strcmp(secinvlistvec[ptr].primkey, newprimkey) > 0)
+                   strcmp(secinvlistvec[ptr].primkey, newprimkey) > 0)
                 {
                     secinvlistvec[newsecrrn].next = ptr;
                     secinvlistvec[prevptr].next = newsecrrn;
@@ -416,12 +414,14 @@ int main(int argc, char* argv[])
     }
     if(input == 1 || input == 2 || input == 4)
     {
-        if(secidxfp != NULL)
+        rewind(secidxfp);
+        if(newcourseflag)
         {
-            rewind(secidxfp);
+            fwrite(secidxvec, sizeof(Secidx), secidxsize+1, secidxfp);            
+        } else {
             fwrite(secidxvec, sizeof(Secidx), secidxsize, secidxfp);
-            fclose(secidxfp);
         }
+        fclose(secidxfp);
         rewind(secinvlistfp);
         fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
         fclose(secinvlistfp);
