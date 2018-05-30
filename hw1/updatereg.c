@@ -41,6 +41,88 @@ void gen_primkey(char primkey[], Reg reg)
     primkey[dstidx] = '\0';
 }
 
+void heapsort_prim_idx(Primidx* primidxvec, int nregs)
+{
+    int i = nregs/2;
+    int parentidx, childidx;
+    Primidx tmpreg;
+    while(1)
+    {
+        if (i > 0) {
+            --i;
+            tmpreg = primidxvec[i];
+        } else {
+            --nregs;
+            if(!nregs)
+            {
+                return;
+            }
+            tmpreg = primidxvec[nregs];
+            primidxvec[nregs] = primidxvec[0];
+        }
+        
+        parentidx = i;
+        childidx = 2*i + 1;
+        while(childidx < nregs)
+        {
+            if((childidx + 1 < nregs) && (strcmp(primidxvec[childidx + 1].primkey, primidxvec[childidx].primkey) > 0))
+            {
+                ++childidx;
+            }
+            if(strcmp(primidxvec[childidx].primkey, tmpreg.primkey) > 0)
+            {
+                primidxvec[parentidx] = primidxvec[childidx];
+                parentidx = childidx;
+                childidx = 2*parentidx + 1;
+            } else {
+                break;
+            }
+        }
+        primidxvec[parentidx] = tmpreg;
+    }
+}
+
+void heapsort_sec_idx(Secidx* secidxvec, int ncourses)
+{
+    int i = ncourses/2;
+    int parentidx, childidx;
+    Secidx tmpreg;
+    while(1)
+    {
+        if (i > 0) {
+            --i;
+            tmpreg = secidxvec[i];
+        } else {
+            --ncourses;
+            if(!ncourses)
+            {
+                return;
+            }
+            tmpreg = secidxvec[ncourses];
+            secidxvec[ncourses] = secidxvec[0];
+        }
+        
+        parentidx = i;
+        childidx = 2*i + 1;
+        while(childidx < ncourses)
+        {
+            if((childidx + 1 < ncourses) && (strcmp(secidxvec[childidx + 1].course, secidxvec[childidx].course) > 0))
+            {
+                ++childidx;
+            }
+            if(strcmp(secidxvec[childidx].course, tmpreg.course) > 0)
+            {
+                secidxvec[parentidx] = secidxvec[childidx];
+                parentidx = childidx;
+                childidx = 2*parentidx + 1;
+            } else {
+                break;
+            }
+        }
+        secidxvec[parentidx] = tmpreg;
+    }
+}
+
 unsigned long int fsize(char* fname)
 {
     FILE* fp;
@@ -87,7 +169,7 @@ int main(int argc, char* argv[])
     }
     while(getchar() != '\n');
 
-    char primkey[31], newprimkey[31], course[3];
+    char primkey[31], newprimkey[31], oldcourse[3];
     unsigned short primidxrrn, regrrn;
     Reg reg;
     gen_primkey(primkey, inputreg);
@@ -107,12 +189,12 @@ int main(int argc, char* argv[])
             {
                 primidxrrn = i;
                 regrrn = primidx.rrn;
-                fseek(primidxfp, -1*sizeof(Primidx), SEEK_CUR);
                 break;
             }
         }
         ++i;
     }
+    fclose(primidxfp);
     if(i == primidxsize)
     {
         printf("Student not found.\n");
@@ -123,7 +205,7 @@ int main(int argc, char* argv[])
     fseek(datafp, regrrn*sizeof(Reg), SEEK_SET);
     fread(&reg, sizeof(Reg), 1, datafp);
     fseek(datafp, -1*sizeof(Reg), SEEK_CUR);    
-    strcpy(course, reg.course);
+    strcpy(oldcourse, reg.course);
 
     printf("What field do you want to update?\n");
     printf("1) MATRIC\n");
@@ -135,6 +217,7 @@ int main(int argc, char* argv[])
     Reg newreg = reg;
     int input;
     do{
+        printf("Option: ");
         scanf("%d", &input);
         while(getchar() != '\n');
         if(input < 1 || input > 5)
@@ -172,7 +255,7 @@ int main(int argc, char* argv[])
             break;
         case 4:
             printf("New COURSE: ");
-            scanf("%ss", newreg.course);
+            scanf("%2s", newreg.course);
             while(getchar() != '\n');
             break;
         case 5:
@@ -182,14 +265,28 @@ int main(int argc, char* argv[])
             break;
     }
 
+    fseek(datafp, regrrn*sizeof(Reg), SEEK_SET);
+    fwrite(&newreg, sizeof(Reg), 1, datafp);
+    fclose(datafp);
+
     /*If MATRIC or NAME fields are modified, primary key changes*/
     Primidx newprimidx;
+    gen_primkey(newprimkey, newreg);
     if(input == 1 || input == 2)
     {
-        gen_primkey(newprimkey, newreg);
         strcpy(newprimidx.primkey, newprimkey);
         newprimidx.rrn = regrrn;
+        unsigned long primidxsize = fsize(primidxfile);
+        Primidx* primidxvec = (Primidx*)malloc(primidxsize);
+        primidxfp = fopen(primidxfile, "r+");
+        fread(primidxvec, primidxsize, 1, primidxfp);
+        primidxvec[primidxrrn] = newprimidx;
+        heapsort_prim_idx(primidxvec, primidxsize/sizeof(Primidx));
+        rewind(primidxfp);
+        fwrite(primidxvec, primidxsize, 1, primidxfp);
     }
+    fclose(primidxfp);
+   
     int head, prevptr, ptr, courseidx, newsecrrn;
     unsigned long secidxsize = fsize(secidxfile)/sizeof(Secidx);
     unsigned long secinvlistsize = fsize(secinvlistfile)/sizeof(SecInvList);
@@ -204,7 +301,7 @@ int main(int argc, char* argv[])
         i = 0;
         while(i < secidxsize)
         {
-            if(strcmp(secidxvec[i].course, course) == 0)
+            if(strcmp(secidxvec[i].course, oldcourse) == 0)
             {
                 ptr = secidxvec[i].head;
                 head = ptr;
@@ -213,34 +310,40 @@ int main(int argc, char* argv[])
             }
             ++i;
         }
-        if(strcmp(secinvlistvec[head].primkey, primkey) == 0)
+        if(i != secidxsize)
         {
-            secidxvec[i].head = secinvlistvec[head].next;
-            strcpy(secinvlistvec[head].primkey, newprimkey);
-        } else {
-            prevptr = head;
-            ptr = secinvlistvec[head].next;
-        }
-        while(ptr != -1)
-        {
-            if(strcmp(secinvlistvec[ptr].primkey, primkey) == 0)
+            if(strcmp(secinvlistvec[head].primkey, primkey) == 0)
             {
-                secinvlistvec[prevptr].next = secinvlistvec[ptr].next;
-                strcpy(secinvlistvec[ptr].primkey, newprimkey);
-                secinvlistvec[ptr].next = -1;
-                newsecrrn = ptr;
-                break;
+                secidxvec[i].head = secinvlistvec[head].next;
+                newsecrrn = head;
+                head = secidxvec[i].head;
+                strcpy(secinvlistvec[newsecrrn].primkey, newprimkey);
+                secinvlistvec[newsecrrn].next = -1;
+                ptr = -1;
             } else {
-                prevptr = ptr;
-                ptr = secinvlistvec[ptr].next;
+                prevptr = head;
+                ptr = secinvlistvec[head].next;
+            }
+            while(ptr != -1)
+            {
+                if(strcmp(secinvlistvec[ptr].primkey, primkey) == 0)
+                {
+                    secinvlistvec[prevptr].next = secinvlistvec[ptr].next;
+                    strcpy(secinvlistvec[ptr].primkey, newprimkey);
+                    secinvlistvec[ptr].next = -1;
+                    newsecrrn = ptr;
+                    break;
+                } else {
+                    prevptr = ptr;
+                    ptr = secinvlistvec[ptr].next;
+                }
             }
         }
     }
-    rewind(secidxfp);
-    fwrite(secidxvec, sizeof(Secidx), secidxsize, secidxfp);
+
     if(input == 1 || input == 2)
     {
-        if(strcmp(secinvlistvec[head].primkey, newprimkey) >= 0)
+        if(strcmp(secinvlistvec[secidxvec[courseidx].head].primkey, newprimkey) >= 0)
         {
             secinvlistvec[newsecrrn].next = secidxvec[courseidx].head;
             secidxvec[courseidx].head = newsecrrn;
@@ -262,6 +365,7 @@ int main(int argc, char* argv[])
             }
         }
     }
+
     if(input == 4)
     {
         i = 0;
@@ -278,10 +382,14 @@ int main(int argc, char* argv[])
         }
         if(courseidx == -1)
         {
-            Secidx newsecidx;
-            strcpy(newsecidx.course, newreg.course);
-            newsecidx.head = newsecrrn;
-            fwrite(&newsecidx, sizeof(Secidx), 1, secidxfp);
+            secidxvec = realloc(secidxvec, (secidxsize+1)*sizeof(Secidx));
+            strcpy(secidxvec[secidxsize].course, newreg.course);
+            secidxvec[secidxsize].head = newsecrrn;
+            heapsort_sec_idx(secidxvec, secidxsize+1);
+            if(secidxfp != NULL) fclose(secidxfp);
+            secidxfp = fopen(secidxfile, "w");
+            fwrite(secidxvec, sizeof(Secidx), secidxsize+1, secidxfp);
+            fclose(secidxfp);
         } else {
             if(strcmp(secinvlistvec[head].primkey, newprimkey) >= 0)
             {
@@ -308,17 +416,16 @@ int main(int argc, char* argv[])
     }
     if(input == 1 || input == 2 || input == 4)
     {
+        if(secidxfp != NULL)
+        {
+            rewind(secidxfp);
+            fwrite(secidxvec, sizeof(Secidx), secidxsize, secidxfp);
+            fclose(secidxfp);
+        }
         rewind(secinvlistfp);
         fwrite(secinvlistvec, sizeof(SecInvList), secinvlistsize, secinvlistfp);
         fclose(secinvlistfp);
-        fclose(secidxfp);
     }
-    fseek(datafp, regrrn*sizeof(Reg), SEEK_SET);
-    fwrite(&newreg, sizeof(Reg), 1, datafp);
-    fclose(datafp);
-
-    fwrite(&newprimidx, sizeof(Primidx), 1, primidxfp);
-    fclose(primidxfp);
 
     return 0;
 }
