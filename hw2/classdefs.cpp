@@ -1,23 +1,30 @@
 #include <boost/algorithm/string.hpp>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace boost::algorithm;
 
-
 class Student {
+    public:
         string name;
         string id;
         string course;
         char classroom;
-    public:
-        string primkey();
-};
+        Student(string a, string b, string c, char d)
+        {
+            name = a;
+            id = b;
+            course = c;
+            classroom = d;
+        }
 
-string Student::primkey()
-{
-    string uppername = to_upper_copy(name);
-    erase_all(uppername, " ");
-    return id + uppername;
-}
+        string primkey()
+        {
+            string uppername = string(name);
+            erase_all(uppername, " ");
+            uppername = to_upper_copy(uppername.erase(3));
+            return uppername + id;
+        }
+};

@@ -20,3 +20,4 @@ addreg
 delreg
 mergefiles
 updatereg
+*.out
