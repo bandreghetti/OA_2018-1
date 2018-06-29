@@ -4,7 +4,7 @@
 
 int main()
 {
-    Student student("Bruno Dantas", "12345", "EM", 'A');
+    Student student("Carlos Dias Takase                       62364  EM  A\n");
 
     cout << student.primkey() << endl;
     cout << student.name << endl;
