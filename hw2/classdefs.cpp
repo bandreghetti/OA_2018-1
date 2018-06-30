@@ -36,3 +36,53 @@ class Student {
             return uppername + id;
         }
 };
+
+class SourceFile {
+        ifstream srcfile;
+    public:
+        void open()
+        {
+            if(srcfile.is_open())
+            {
+                cout << "ERROR: file already open";
+            } else {
+                srcfile.open("lista.txt", ifstream::in);
+            }
+        }
+
+        string getline()
+        {
+            string line;
+            if(srcfile.is_open())
+            {
+                std::getline(srcfile, line);
+            } else {
+                cout << "ERROR: File not open" << endl;
+            }
+            return line;
+        }
+
+        bool eof()
+        {
+            return srcfile.eof();
+        }
+
+        void close()
+        {
+            srcfile.close();
+        }
+};
+
+class BTree {
+        unsigned int order;
+    public:
+        BTree()
+        {
+            order = 5;
+        }
+        
+        BTree(unsigned int m)
+        {
+            order = m;
+        }
+};

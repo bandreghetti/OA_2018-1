@@ -1,16 +1,27 @@
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <unistd.h>
 #include "classdefs.cpp"
 
 int main()
 {
-    Student student("Carlos Dias Takase                       62364  EM  A\n");
+    SourceFile src;
+    string line;
+    src.open();
 
-    cout << student.primkey() << endl;
-    cout << student.name << endl;
-    cout << student.id << endl;
-    cout << student.course << endl;
-    cout << student.classroom << endl;
+    // while(!src.eof())
+    // {
+    //     line = src.getline();
+    //     Student student(line);
+    //     cout << student.primkey() << endl;
+    //     cout << student.name << endl;
+    //     cout << student.id << endl;
+    //     cout << student.course << endl;
+    //     cout << student.classroom << endl;
+    // }
+
+    src.close();
 
     return 0;
 }
