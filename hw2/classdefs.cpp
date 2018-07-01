@@ -6,7 +6,8 @@
 using namespace std;
 using namespace boost::algorithm;
 
-class Student {
+class Student
+{
     public:
         string name;
         string id;
@@ -37,7 +38,8 @@ class Student {
         }
 };
 
-class SourceFile {
+class SourceFile
+{
         ifstream srcfile;
     public:
         void open()
@@ -73,16 +75,49 @@ class SourceFile {
         }
 };
 
-class BTree {
+class BTreeNode
+{
         unsigned int order;
+        BTreeNode* children;
+        string* key;
+        unsigned int* RRN;
+    public:
+        BTreeNode()
+        {
+            order = 5;
+            children = (BTreeNode*)malloc(order*sizeof(BTreeNode));
+            key = (string*)malloc((order-1)*sizeof(string));
+            RRN = (unsigned int*)malloc((order-1)*sizeof(unsigned int));
+        }
+
+        BTreeNode(unsigned int m)
+        {
+            order = m;
+            children = (BTreeNode*)malloc(order*sizeof(BTreeNode));
+            key = (string*)malloc((order-1)*sizeof(string));
+            RRN = (unsigned int*)malloc((order-1)*sizeof(unsigned int));
+        }
+
+        void insert(unsigned int pos, string key, unsigned int RRN)
+        {
+            
+        }
+};
+
+class BTree
+{
+        unsigned int order;
+        BTreeNode *root;
     public:
         BTree()
         {
             order = 5;
+            *root = BTreeNode(order);
         }
         
         BTree(unsigned int m)
         {
             order = m;
+            *root = BTreeNode(order);
         }
 };
