@@ -6,9 +6,12 @@
 
 int main()
 {
-    SourceFile src;
-    string line;
-    src.open();
+    BTree btree(5);
+    btree.show();
+    
+    // SourceFile src;
+    // string line;
+    // src.open();
 
     // while(!src.eof())
     // {
@@ -21,7 +24,7 @@ int main()
     //     cout << student.classroom << endl;
     // }
 
-    src.close();
+    // src.close();
 
     return 0;
 }
