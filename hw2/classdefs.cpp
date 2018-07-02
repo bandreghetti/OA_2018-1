@@ -128,17 +128,16 @@ class BTree
         unsigned int order;
         fstream file;
         BTreeNode *root;
-        BTreeNode *page;
     public:
         BTree(unsigned int m)
         {
             order = m;
-            *root = BTreeNode(order);
+            root = NULL;
             root->pageRRN = 0;
         }
         BTree(string fname)
         {
-            file.open(fname);
+            file.open(fname.c_str());
             file.read((char*) &order, sizeof(unsigned int));
             *root = BTreeNode(order);
             root->pageRRN = 0;
