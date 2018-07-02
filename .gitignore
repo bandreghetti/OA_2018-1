@@ -21,3 +21,5 @@ delreg
 mergefiles
 updatereg
 *.out
+
+hw2/\.vs/
