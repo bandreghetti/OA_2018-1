@@ -6,25 +6,26 @@
 
 int main()
 {
+    SourceFile src;
+    string line;
+    src.open();
+
     BTree btree(5);
-    btree.show();
     
-    // SourceFile src;
-    // string line;
-    // src.open();
+    Student* student;
 
-    // while(!src.eof())
-    // {
-    //     line = src.getline();
-    //     Student student(line);
-    //     cout << student.primkey() << endl;
-    //     cout << student.name << endl;
-    //     cout << student.id << endl;
-    //     cout << student.course << endl;
-    //     cout << student.classroom << endl;
-    // }
+    int i;
+    for(i = 0; i < 4; ++i)
+    {
+        printf("Inserting student #%d\n", i);
+        line = src.getline();
+        student = new Student(line);   
+        btree.insert(student->primkey(), i);
+    }
 
-    // src.close();
+    btree.show();
+
+    src.close();
 
     return 0;
 }
