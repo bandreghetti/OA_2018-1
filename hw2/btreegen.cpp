@@ -15,11 +15,11 @@ int main()
     Student* student;
 
     int i;
-    for(i = 0; i < 4; ++i)
+    for(i = 0; i < 15; ++i)
     {
-        printf("Inserting student #%d\n", i);
-        line = src.getline();
+        line = src.getline(i);
         student = new Student(line);   
+        // printf("Inserting student #%d with name %s key %s\n", i, student->name.c_str(), student->primkey().c_str());
         btree.insert(student->primkey(), i);
     }
 

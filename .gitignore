@@ -23,3 +23,5 @@ updatereg
 *.out
 
 hw2/\.vs/
+
+\.vs/
